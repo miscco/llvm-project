@@ -1,0 +1,167 @@
+// -*- C++ -*-
+//===---------------------------- concepts -------------------------------===//
+//
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+//===---------------------------------------------------------------------===//
+
+#ifndef _LIBCPP_CONCEPTS
+#define _LIBCPP_CONCEPTS
+
+/*
+    concepts synopsis
+
+namespace std {
+
+// [concepts.lang], language-related concepts
+// [concept.same], concept same_­as
+template<class T, class U>
+concept same_as;
+
+// [concept.derived], concept derived_­from
+template<class Derived, class Base>
+concept derived_from;
+
+// [concept.convertible], concept convertible_­to
+template<class From, class To>
+concept convertible_to;
+
+// [concept.commonref], concept common_­reference_­with
+template<class T, class U>
+concept common_reference_with;
+
+// [concept.common], concept common_­with
+template<class T, class U>
+concept common_with;
+
+// [concepts.arithmetic], arithmetic concepts
+template<class T>
+concept integral;
+
+template<class T>
+concept signed_integral;
+
+template<class T>
+concept unsigned_integral;
+
+template<class T>
+concept floating_point;
+
+// [concept.assignable], concept assignable_­from
+template<class LHS, class RHS>
+concept assignable_from;
+
+// [concept.swappable], concept swappable
+namespace ranges {
+    inline namespace unspecified {
+        inline constexpr unspecified swap = unspecified;
+    }
+}
+
+template<class T>
+concept swappable;
+
+template<class T, class U>
+concept swappable_with;
+
+// [concept.destructible], concept destructible
+template<class T>
+concept destructible;
+
+// [concept.constructible], concept constructible_­from
+template<class T, class... Args>
+concept constructible_from;
+
+// [concept.defaultconstructible], concept default_­constructible
+template<class T>
+concept default_constructible;
+
+// [concept.moveconstructible], concept move_­constructible
+template<class T>
+concept move_constructible;
+
+// [concept.copyconstructible], concept copy_­constructible
+template<class T>
+concept copy_constructible;
+
+// [concepts.compare], comparison concepts
+// [concept.boolean], concept boolean
+template<class B>
+concept boolean;
+
+// [concept.equalitycomparable], concept equality_­comparable
+template<class T>
+concept equality_comparable;
+
+template<class T, class U>
+concept equality_comparable_with;
+
+// [concept.totallyordered], concept totally_­ordered
+template<class T>
+concept totally_ordered;
+
+template<class T, class U>
+concept totally_ordered_with;
+
+// [concepts.object], object concepts
+template<class T>
+concept movable;
+
+template<class T>
+concept copyable;
+
+template<class T>
+concept semiregular;
+
+template<class T>
+concept regular;
+
+// [concepts.callable], callable concepts
+// [concept.invocable], concept invocable
+template<class F, class... Args>
+concept invocable;
+
+// [concept.regularinvocable], concept regular_­invocable
+template<class F, class... Args>
+concept regular_invocable;
+
+// [concept.predicate], concept predicate
+template<class F, class... Args>
+concept predicate;
+
+// [concept.relation], concept relation
+template<class R, class T, class U>
+concept relation;
+
+// [concept.equiv], concept equivalence_­relation
+template<class R, class T, class U>
+concept equivalence_relation;
+
+// [concept.strictweakorder], concept strict_­weak_­order
+template<class R, class T, class U>
+concept strict_weak_order;
+
+} // namespace std
+
+*/
+
+#include <__config>
+#include <type_traits>
+
+#if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
+#pragma GCC system_header
+#endif
+
+_LIBCPP_BEGIN_NAMESPACE_STD
+
+#if _LIBCPP_STD_VER > 17
+// clang-format off
+
+// clang-format on
+#endif // _LIBCPP_STD_VER > 17
+
+_LIBCPP_END_NAMESPACE_STD
+
+#endif // _LIBCPP_CONCEPTS
