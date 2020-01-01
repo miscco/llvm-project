@@ -159,6 +159,19 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 #if _LIBCPP_STD_VER > 17
 // clang-format off
 
+// [concepts.lang], language-related concepts
+// [concept.same], concept same_­as
+template <class _Tp, class _Up>
+concept _Same_as_impl =
+#ifdef __clang__
+    __is_same(_Tp, _Up);
+#else
+    _VSTD::is_same_v<_Tp, _Up>;
+#endif
+
+template <class _Tp, class _Up>
+concept same_as = _Same_as_impl<_Tp, _Up> && _Same_as_impl<_Up, _Tp>;
+
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
