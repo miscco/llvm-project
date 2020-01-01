@@ -197,6 +197,10 @@ concept unsigned_integral = integral<_Tp> && !is_signed_v<_Tp>;
 template<class _Tp>
 concept floating_point = is_floating_point_v<_Tp>;
 
+// [concept.destructible], concept destructible
+template<class _Tp>
+concept destructible = is_nothrow_destructible_v<_Tp>;
+
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
