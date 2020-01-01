@@ -1,0 +1,92 @@
+// -*- C++ -*-
+//===---------------------------- concepts -------------------------------===//
+//
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+//===---------------------------------------------------------------------===//
+// UNSUPPORTED: c++98, c++03, c++11, c++14, c++17
+
+// <concept>
+
+// template<class T>
+// concept unsigned_integral;
+
+#include <concepts>
+
+enum E { };
+enum class CE { };
+struct A { };
+union B { };
+
+int main(int, char**)
+{
+    // floating point types
+    static_assert(!std::unsigned_integral<float>, "");
+    static_assert(!std::unsigned_integral<double>, "");
+
+    // integer types
+    static_assert(!std::unsigned_integral<short>, "");
+    static_assert(!std::unsigned_integral<int>, "");
+    static_assert(!std::unsigned_integral<long>, "");
+    static_assert(!std::unsigned_integral<long long>, "");
+    static_assert(!std::unsigned_integral<__int128>, "");
+
+    // char types
+    static_assert(!(std::is_signed_v<char> ? false : std::unsigned_integral<char>), "");
+    static_assert(!(std::is_signed_v<wchar_t> ? false : std::unsigned_integral<wchar_t>), "");
+
+    // explicitely signed integer types
+    static_assert(!std::unsigned_integral<signed char>, "");
+    static_assert(!std::unsigned_integral<signed short>, "");
+    static_assert(!std::unsigned_integral<signed int>, "");
+    static_assert(!std::unsigned_integral<signed long>, "");
+    static_assert(!std::unsigned_integral<signed long long>, "");
+
+    // explicitely unsigned integer types
+    static_assert( std::unsigned_integral<unsigned char>, "");
+    static_assert( std::unsigned_integral<unsigned short>, "");
+    static_assert( std::unsigned_integral<unsigned int>, "");
+    static_assert( std::unsigned_integral<unsigned long>, "");
+    static_assert( std::unsigned_integral<unsigned long long>, "");
+
+    // Other types that are considered unsigned integrals
+    static_assert( std::unsigned_integral<bool>, "");
+    static_assert( std::unsigned_integral<char8_t>, "");
+    static_assert( std::unsigned_integral<char16_t>, "");
+    static_assert( std::unsigned_integral<char32_t>, "");
+
+    // References / Pointers are not unsigned integral
+    static_assert(!std::unsigned_integral<int*>, "");
+    static_assert(!std::unsigned_integral<int&>, "");
+    static_assert(!std::unsigned_integral<int&&>, "");
+    static_assert(!std::unsigned_integral<const int&>, "");
+
+    // Arrays are not unsigned integral
+    static_assert(!std::unsigned_integral<int[]>, "");
+    static_assert(!std::unsigned_integral<int[2]>, "");
+
+    // Functions are not unsigned integral
+    static_assert(!std::unsigned_integral<int()>, "");
+    static_assert(!std::unsigned_integral<int(*)()>, "");
+    static_assert(!std::unsigned_integral<int(&)()>, "");
+
+    // Other fundamental types are not unsigned integral
+    static_assert(!std::unsigned_integral<void>, "");
+    static_assert(!std::integral<std::nullptr_t>, "");
+
+    // Enumerations are not unsigned integral
+    static_assert(!std::unsigned_integral<E>, "");
+    static_assert(!std::unsigned_integral<CE>, "");
+
+    // Classes / unions are not unsigned integral
+    static_assert(!std::unsigned_integral<A>, "");
+    static_assert(!std::unsigned_integral<B>, "");
+
+    // integral_constant / bool_constant are not unsigned integral
+    static_assert(!std::unsigned_integral<std::integral_constant<int, 5>>, "");
+    static_assert(!std::unsigned_integral<std::bool_constant<true>>, "");
+
+    return 0;
+}
