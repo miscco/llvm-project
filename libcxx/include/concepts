@@ -177,6 +177,13 @@ template <class _Dp, class _Bp>
 concept derived_from = __is_base_of(_Bp, _Dp)
                     && is_convertible_v<const volatile _Dp*, const volatile _Bp*>;
 
+// [concept.convertible], concept convertible_­to
+template <class _From, class _To>
+concept convertible_to = is_convertible_v<_From, _To>
+                      && requires(_From (&__f)()) {
+	                       static_cast<_To>(__f());
+                         };
+
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
