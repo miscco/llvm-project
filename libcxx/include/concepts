@@ -172,6 +172,11 @@ concept _Same_as_impl =
 template <class _Tp, class _Up>
 concept same_as = _Same_as_impl<_Tp, _Up> && _Same_as_impl<_Up, _Tp>;
 
+// [concept.derived], concept derived_­from
+template <class _Dp, class _Bp>
+concept derived_from = __is_base_of(_Bp, _Dp)
+                    && is_convertible_v<const volatile _Dp*, const volatile _Bp*>;
+
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
