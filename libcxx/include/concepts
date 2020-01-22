@@ -205,6 +205,10 @@ concept destructible = is_nothrow_destructible_v<_Tp>;
 template<class _Tp, class... _Args>
 concept constructible_from = destructible<_Tp> && is_constructible_v<_Tp, _Args...>;
 
+// [concept.moveconstructible], concept move_­constructible
+template<class _Tp>
+concept move_constructible = constructible_from<_Tp, _Tp> && convertible_to<_Tp, _Tp>;
+
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
