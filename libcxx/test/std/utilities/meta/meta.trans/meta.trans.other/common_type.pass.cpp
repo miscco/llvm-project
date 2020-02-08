@@ -95,13 +95,16 @@ struct TernaryOp {
     >::type type;
 };
 
+// (4.1)
 // -- If sizeof...(T) is zero, there shall be no member type.
 void test_bullet_one() {
   static_assert(no_common_type<>::value, "");
 }
 
-// If sizeof...(T) is one, let T0 denote the sole type constituting the pack T.
-// The member typedef-name type shall denote the same type as decay_t<T0>.
+// (4.2)
+// -- If sizeof...(T) is one, let T0 denote the sole type constituting the pack
+//    T. The member typedef-name type shall denote the same type, if any, as
+//    common_type_t<T0, T0>; otherwise there shall be no member type.
 void test_bullet_two() {
   static_assert((std::is_same<std::common_type<void>::type, void>::value), "");
   static_assert((std::is_same<std::common_type<int>::type, int>::value), "");
@@ -122,11 +125,11 @@ void test_bullet_three_one_imp() {
   static_assert((std::is_same<typename std::common_type<T, U>::type, typename std::common_type<DT, DU>::type>::value), "");
 }
 
-// (3.3)
+// (4.3)
 // -- If sizeof...(T) is two, let the first and second types constituting T be
 //    denoted by T1 and T2, respectively, and let D1 and D2 denote the same types
 //    as decay_t<T1> and decay_t<T2>, respectively.
-// (3.3.1)
+// (4.3.1)
 //    -- If is_same_v<T1, D1> is false or is_same_v<T2, D2> is false, let C
 //       denote the same type, if any, as common_type_t<D1, D2>.
 void test_bullet_three_one() {
@@ -160,16 +163,19 @@ void test_bullet_three_one() {
   }
 }
 
-// (3.3)
+// (4.3)
 // -- If sizeof...(T) is two, let the first and second types constituting T be
 //    denoted by T1 and T2, respectively, and let D1 and D2 denote the same types
 //    as decay_t<T1> and decay_t<T2>, respectively.
-// (3.3.1)
+// (4.3.1)
 //    -- If [...]
-// (3.3.2)
-//    -- Otherwise, let C denote the same type, if any, as
+// (4.3.2)
+//    -- [Note: [...]
+// (4.3.3)
+//    -- Otherwise, if
 //       decay_t<decltype(false ? declval<D1>() : declval<D2>())>
-void test_bullet_three_two() {
+//       denotes a type, let C denote that type.
+void test_bullet_three_three() {
   {
     typedef int const* T1;
     typedef int* T2;
@@ -200,7 +206,7 @@ void test_bullet_three_two() {
   }
 }
 
-// (3.4)
+// (4.4)
 // -- If sizeof...(T) is greater than two, let T1, T2, and R, respectively,
 // denote the first, second, and (pack of) remaining types constituting T.
 // Let C denote the same type, if any, as common_type_t<T1, T2>. If there is
@@ -307,7 +313,7 @@ int main(int, char**)
   test_bullet_one();
   test_bullet_two();
   test_bullet_three_one();
-  test_bullet_three_two();
+  test_bullet_three_three();
   test_bullet_four();
 
 //  P0548
