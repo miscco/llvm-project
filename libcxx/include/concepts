@@ -216,6 +216,14 @@ concept unsigned_integral = integral<_Tp> && !is_signed_v<_Tp>;
 template<class _Tp>
 concept floating_point = is_floating_point_v<_Tp>;
 
+// [concept.assignable], concept assignable_from
+template<class _To, class _From>
+concept assignable_from = is_lvalue_reference_v<_To>
+                       && common_reference_with<const remove_reference_t<_To>&,
+                                                const remove_reference_t<_From>&>
+                       && requires(_To __to, _From&& __from) {
+                            { __to = static_cast<_From&&>(__from) } -> same_as<_To>;
+                          };
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
