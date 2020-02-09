@@ -184,6 +184,12 @@ concept convertible_to = is_convertible_v<_From, _To>
 	                       static_cast<_To>(__f());
                          };
 
+// [concept.commonref], concept common_reference_with
+template<typename _Tp, typename _Up>
+concept common_reference_with = same_as<common_reference_t<_Tp, _Up>, common_reference_t<_Up, _Tp>>
+                             && convertible_to<_Tp, common_reference_t<_Tp, _Up>>
+                             && convertible_to<_Up, common_reference_t<_Tp, _Up>>;
+
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
