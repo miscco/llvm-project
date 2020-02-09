@@ -17,7 +17,7 @@ namespace std {
 
 // [concepts.lang], language-related concepts
 // [concept.same], concept same_­as
-template<class T, class U>
+template<class _Tp, class _Up>
 concept same_as;
 
 // [concept.derived], concept derived_­from
@@ -29,24 +29,24 @@ template<class From, class To>
 concept convertible_to;
 
 // [concept.commonref], concept common_­reference_­with
-template<class T, class U>
+template<class _Tp, class _Up>
 concept common_reference_with;
 
 // [concept.common], concept common_­with
-template<class T, class U>
+template<class _Tp, class _Up>
 concept common_with;
 
 // [concepts.arithmetic], arithmetic concepts
-template<class T>
+template<class _Tp>
 concept integral;
 
-template<class T>
+template<class _Tp>
 concept signed_integral;
 
-template<class T>
+template<class _Tp>
 concept unsigned_integral;
 
-template<class T>
+template<class _Tp>
 concept floating_point;
 
 // [concept.assignable], concept assignable_­from
@@ -60,30 +60,30 @@ namespace ranges {
     }
 }
 
-template<class T>
+template<class _Tp>
 concept swappable;
 
-template<class T, class U>
+template<class _Tp, class _Up>
 concept swappable_with;
 
 // [concept.destructible], concept destructible
-template<class T>
+template<class _Tp>
 concept destructible;
 
 // [concept.constructible], concept constructible_­from
-template<class T, class... Args>
+template<class _Tp, class... Args>
 concept constructible_from;
 
 // [concept.defaultconstructible], concept default_­constructible
-template<class T>
+template<class _Tp>
 concept default_constructible;
 
 // [concept.moveconstructible], concept move_­constructible
-template<class T>
+template<class _Tp>
 concept move_constructible;
 
 // [concept.copyconstructible], concept copy_­constructible
-template<class T>
+template<class _Tp>
 concept copy_constructible;
 
 // [concepts.compare], comparison concepts
@@ -92,30 +92,30 @@ template<class B>
 concept boolean;
 
 // [concept.equalitycomparable], concept equality_­comparable
-template<class T>
+template<class _Tp>
 concept equality_comparable;
 
-template<class T, class U>
+template<class _Tp, class _Up>
 concept equality_comparable_with;
 
 // [concept.totallyordered], concept totally_­ordered
-template<class T>
+template<class _Tp>
 concept totally_ordered;
 
-template<class T, class U>
+template<class _Tp, class _Up>
 concept totally_ordered_with;
 
 // [concepts.object], object concepts
-template<class T>
+template<class _Tp>
 concept movable;
 
-template<class T>
+template<class _Tp>
 concept copyable;
 
-template<class T>
+template<class _Tp>
 concept semiregular;
 
-template<class T>
+template<class _Tp>
 concept regular;
 
 // [concepts.callable], callable concepts
@@ -132,15 +132,15 @@ template<class F, class... Args>
 concept predicate;
 
 // [concept.relation], concept relation
-template<class R, class T, class U>
+template<class R, class _Tp, class _Up>
 concept relation;
 
 // [concept.equiv], concept equivalence_­relation
-template<class R, class T, class U>
+template<class R, class _Tp, class _Up>
 concept equivalence_relation;
 
 // [concept.strictweakorder], concept strict_­weak_­order
-template<class R, class T, class U>
+template<class R, class _Tp, class _Up>
 concept strict_weak_order;
 
 } // namespace std
@@ -189,6 +189,19 @@ template<typename _Tp, typename _Up>
 concept common_reference_with = same_as<common_reference_t<_Tp, _Up>, common_reference_t<_Up, _Tp>>
                              && convertible_to<_Tp, common_reference_t<_Tp, _Up>>
                              && convertible_to<_Up, common_reference_t<_Tp, _Up>>;
+
+// [concept.common], concept common_with
+template<class _Tp, class _Up>
+concept common_with = same_as<common_type_t<_Tp, _Up>, common_type_t<_Up, _Tp>>
+                   && requires {
+                        static_cast<common_type_t<_Tp, _Up>>(_VSTD::declval<_Tp>());
+                        static_cast<common_type_t<_Tp, _Up>>(_VSTD::declval<_Up>());
+                      }
+                   && common_reference_with<add_lvalue_reference_t<const _Tp>,
+                                            add_lvalue_reference_t<const _Up>>
+                   && common_reference_with<add_lvalue_reference_t<common_type_t<_Tp, _Up>>,
+                                            common_reference_t<add_lvalue_reference_t<const _Tp>,
+                                                               add_lvalue_reference_t<const _Up>>>;
 
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
