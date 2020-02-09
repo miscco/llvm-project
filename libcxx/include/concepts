@@ -247,6 +247,15 @@ template<typename _Tp>
 concept move_constructible = constructible_from<_Tp, _Tp>
                           && convertible_to<_Tp, _Tp>;
 
+// [concept.copyconstructible], concept copy_constructible
+template<typename _Tp>
+concept copy_constructible = move_constructible<_Tp>
+                          && constructible_from<_Tp, _Tp&>
+                          && convertible_to<_Tp&, _Tp>
+                          && constructible_from<_Tp, const _Tp&>
+                          && convertible_to<const _Tp&, _Tp>
+                          && constructible_from<_Tp, const _Tp>
+                          && convertible_to<const _Tp, _Tp>;
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
