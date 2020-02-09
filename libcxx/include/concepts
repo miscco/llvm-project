@@ -242,6 +242,11 @@ concept default_initializable = constructible_from<_Tp>
                                   (void) ::new _Tp;
                                 };
 
+// [concept.moveconstructible], concept move_constructible
+template<typename _Tp>
+concept move_constructible = constructible_from<_Tp, _Tp>
+                          && convertible_to<_Tp, _Tp>;
+
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
