@@ -229,6 +229,11 @@ concept assignable_from = is_lvalue_reference_v<_To>
 template<class _Tp>
 concept destructible = is_nothrow_destructible_v<_Tp>;
 
+// [concept.constructible], concept constructible_­from
+template<class _Tp, class... _Args>
+concept constructible_from = destructible<_Tp>
+                          && is_constructible_v<_Tp, _Args...>;
+
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
