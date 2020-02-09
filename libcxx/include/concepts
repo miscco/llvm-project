@@ -234,6 +234,14 @@ template<class _Tp, class... _Args>
 concept constructible_from = destructible<_Tp>
                           && is_constructible_v<_Tp, _Args...>;
 
+// [concept.defaultinitializable], concept default_initializable
+template<class _Tp>
+concept default_initializable = constructible_from<_Tp>
+                             && requires {
+                                  _Tp{};
+                                  (void) ::new _Tp;
+                                };
+
 // clang-format on
 #endif // _LIBCPP_STD_VER > 17
 
