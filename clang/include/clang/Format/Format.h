@@ -429,6 +429,62 @@ struct FormatStyle {
   /// line.
   bool AllowShortLoopsOnASingleLine;
 
+  /// Different styles for merging short requires-clauses with the template
+  /// decalaration
+  enum ShortRequiresClauseStyle {
+    /// Never merge requires clauses into a single line.
+    /// \code
+    ///   template <class T>
+    ///   requires someConstraint<T>
+    ///   T foo();
+    /// \endcode
+    SRCS_Never,
+    /// Only merge requires clauses with a single constraint.
+    /// \code
+    ///   template <class T> requires someConstraint<T>
+    ///   T foo();
+    ///
+    ///   template <class T>
+    ///   requires someConstraint<T> && otherConstraint<T>
+    ///   T bar();
+    /// \endcode
+    SRCS_Single,
+    /// Merge requires clauses if they are short
+    /// \code
+    ///   template <class T> requires short<T> && shorter<T>
+    ///   T foo();
+    ///
+    ///   template <class T>
+    ///   requires someReallyLongElaborateConstraintThatIsReallyLong<T>
+    ///   T bar();
+    ///
+    ///   template <class T>
+    ///   requires someLongConstraint<T> && otherLongConstraint<T>
+    ///   T baz();
+    /// \endcode
+    SRCS_Short,
+    /// Always try to merge the requires clause with the template declaration
+    /// \code
+    ///   template <class T> requires someLongConstraint<T> &&
+    ///                               otherLongConstraint<T>
+    ///   T foo();
+    /// \endcode
+    SRCS_Always,
+  };
+
+  /// Dependent on the value, requires-clauses can be put on the same line
+  /// as the template declaration.
+  ShortRequiresClauseStyle AllowShortRequiresClause;
+
+  /// Dependent on the value, requires-expressions can be a single line
+  /// Always try to merge the requires clause with the template declaration
+  /// \code
+  ///   template <class T> requires someLongConstraint<T> &&
+  ///                               requires { T{}; }
+  ///   T foo();
+  /// \endcode
+  bool AllowShortRequiresExpression;
+
   /// Different ways to break after the function definition return type.
   /// This option is **deprecated** and is retained for backwards compatibility.
   enum DefinitionReturnTypeBreakingStyle {
@@ -856,6 +912,109 @@ struct FormatStyle {
 
   /// The brace breaking style to use.
   BraceBreakingStyle BreakBeforeBraces;
+
+  /// Dependent on the value break before or after constraint expressions.
+  enum ConstraintExpressionBreakingStyle {
+    /// Break after constraint expressions but multiple may be on single line
+    /// \code
+    ///   template <class T> requires someLongConstraint<T> &&
+    ///                               otherLongConstraint<T>
+    ///   T foo();
+    ///
+    ///   template <class T> requires short<T> && shorter<T> &&
+    ///                               otherLongConstraint<T>
+    ///   T bar();
+    /// \endcode
+    CEBS_After,
+    /// Break after constraint expressions.
+    /// \code
+    ///   template <class T> requires short<T> &&
+    ///                               shorter<T> &&
+    ///                               otherLongConstraint<T>
+    ///   T bar();
+    /// \endcode
+    CEBS_AfterSingleExpression,
+    /// Break before constraint expressions but multiple may be on single line
+    /// \code
+    ///   template <class T> requires someLongConstraint<T> &&
+    ///                               otherLongConstraint<T>
+    ///   T foo();
+    ///
+    ///   template <class T> requires short<T> && shorter<T>
+    ///                            && otherLongConstraint<T>
+    ///   T bar();
+    /// \endcode
+    CEBS_Before,
+    /// Break before constraint expressions.
+    /// \code
+    ///   template <class T> requires short<T>
+    ///                            && shorter<T>
+    ///                            && otherLongConstraint<T>
+    ///   T foo();
+    /// \endcode
+    CEBS_BeforeSingleExpression,
+  };
+
+  /// The constraint expressions style to use.
+  ConstraintExpressionBreakingStyle BreakBeforeConstraintExpression;
+
+  /// Dependent on the value wrap before or after requires expressions.
+  enum BraceWrappingRequiresExpressionStyle {
+    /// Do not wrap braces of requires expressions
+    /// \code
+    ///   template <class T> requires requires {  T{};
+    ///                                           T(int); }
+    ///   T foo();
+    /// \endcode
+    BWARES_NoWrap,
+    /// Wrap after requires expressions.
+    /// \code
+    ///   template <class T> requires requires { T{};
+    ///                                          T(int);
+    ///                                        }
+    ///   T foo();
+    /// \endcode
+    BWARES_WrapAfter,
+    /// Wrap after requires expressions.
+    /// \code
+    ///   template <class T> requires requires
+    ///                               { T{};
+    ///                                 T(int); }
+    ///   T foo();
+    /// \endcode
+    BWARES_WrapBefore,
+    /// Wrap after requires expressions with a new line.
+    /// \code
+    ///   template <class T> requires requires
+    ///                               {
+    ///                                 T{};
+    ///                                 T(int); }
+    ///   T foo();
+    /// \endcode
+    BWARES_WrapBeforeWithNewline,
+    /// Wrap before requires expressions.
+    /// \code
+    ///   template <class T> requires requires
+    ///                               { T{};
+    ///                                 T(int);
+    ///                               }
+    ///   T foo();
+    /// \endcode
+    BWARES_WrapBoth,
+    /// Wrap before requires expressions.
+    /// \code
+    ///   template <class T> requires requires
+    ///                               {
+    ///                                 T{};
+    ///                                 T(int);
+    ///                               }
+    ///   T foo();
+    /// \endcode
+    BWARES_WrapBothWithNewline,
+  };
+
+  /// The requires expressions style to use.
+  BraceWrappingRequiresExpressionStyle BraceWrappingRequiresExpression;
 
   /// Different ways to wrap braces after control statements.
   enum BraceWrappingAfterControlStatementStyle {
@@ -2237,6 +2396,8 @@ struct FormatStyle {
                R.AllowShortIfStatementsOnASingleLine &&
            AllowShortLambdasOnASingleLine == R.AllowShortLambdasOnASingleLine &&
            AllowShortLoopsOnASingleLine == R.AllowShortLoopsOnASingleLine &&
+           AllowShortRequiresClause == R.AllowShortRequiresClause &&
+           AllowShortRequiresExpression == R.AllowShortRequiresExpression &&
            AlwaysBreakAfterReturnType == R.AlwaysBreakAfterReturnType &&
            AlwaysBreakBeforeMultilineStrings ==
                R.AlwaysBreakBeforeMultilineStrings &&
@@ -2246,6 +2407,8 @@ struct FormatStyle {
            BinPackParameters == R.BinPackParameters &&
            BreakBeforeBinaryOperators == R.BreakBeforeBinaryOperators &&
            BreakBeforeBraces == R.BreakBeforeBraces &&
+           BreakBeforeConstraintExpression == R.BreakBeforeConstraintExpression &&
+           BraceWrappingRequiresExpression == R.BraceWrappingRequiresExpression &&
            BreakBeforeTernaryOperators == R.BreakBeforeTernaryOperators &&
            BreakConstructorInitializers == R.BreakConstructorInitializers &&
            CompactNamespaces == R.CompactNamespaces &&

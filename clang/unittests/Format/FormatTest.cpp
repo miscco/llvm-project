@@ -13119,6 +13119,28 @@ TEST_F(FormatTest, UnderstandPragmaOption) {
   EXPECT_EQ("#pragma option -C -A", format("#pragma    option   -C   -A"));
 }
 
+TEST_F(FormatTest, RequiresStuff) {
+  FormatStyle Style = getLLVMStyleWithColumns(40);
+  verifyFormat("int a = f(aaaaaaaaaaaaaaaaaaaaaa &&\n"
+               "          bbbbbbbbbbbbbbbbbbbbbb);",
+               Style);
+  Style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
+  Style.AlignOperands = false;
+  verifyFormat("int a = f(aaaaaaaaaaaaaaaaaaaaaa &&\n"
+               "          bbbbbbbbbbbbbbbbbbbbbb);",
+               Style);
+  Style.AlignAfterOpenBracket = FormatStyle::BAS_DontAlign;
+  Style.AlignOperands = true;
+  verifyFormat("int a = f(aaaaaaaaaaaaaaaaaaaaaa &&\n"
+               "          bbbbbbbbbbbbbbbbbbbbbb);",
+               Style);
+  Style.AlignAfterOpenBracket = FormatStyle::BAS_DontAlign;
+  Style.AlignOperands = false;
+  verifyFormat("int a = f(aaaaaaaaaaaaaaaaaaaaaa &&\n"
+               "    bbbbbbbbbbbbbbbbbbbbbb);",
+               Style);
+}
+
 TEST_F(FormatTest, OptimizeBreakPenaltyVsExcess) {
   FormatStyle Style = getLLVMStyle();
   Style.ColumnLimit = 20;
@@ -13377,6 +13399,7 @@ TEST_F(FormatTest, ParsesConfigurationBools) {
   CHECK_PARSE_BOOL(AllowShortCaseLabelsOnASingleLine);
   CHECK_PARSE_BOOL(AllowShortEnumsOnASingleLine);
   CHECK_PARSE_BOOL(AllowShortLoopsOnASingleLine);
+  CHECK_PARSE_BOOL(AllowShortRequiresExpression);
   CHECK_PARSE_BOOL(BinPackArguments);
   CHECK_PARSE_BOOL(BinPackParameters);
   CHECK_PARSE_BOOL(BreakAfterJavaFieldAnnotations);
@@ -13715,6 +13738,40 @@ TEST_F(FormatTest, ParsesConfiguration) {
   CHECK_PARSE("AllowShortIfStatementsOnASingleLine: true",
               AllowShortIfStatementsOnASingleLine,
               FormatStyle::SIS_WithoutElse);
+
+  Style.AllowShortRequiresClause = FormatStyle::SRCS_Never;
+  CHECK_PARSE("AllowShortRequiresClause: Single",
+              AllowShortRequiresClause, FormatStyle::SRCS_Single);
+  CHECK_PARSE("AllowShortRequiresClause: Short",
+              AllowShortRequiresClause, FormatStyle::SRCS_Short);
+  CHECK_PARSE("AllowShortRequiresClause: Always",
+              AllowShortRequiresClause, FormatStyle::SRCS_Always);
+  CHECK_PARSE("AllowShortRequiresClause: Never",
+              AllowShortRequiresClause, FormatStyle::SRCS_Never);
+
+  Style.BreakBeforeConstraintExpression = FormatStyle::CEBS_After;
+  CHECK_PARSE("BreakBeforeConstraintExpression: AfterSingleExpression",
+              BreakBeforeConstraintExpression, FormatStyle::CEBS_AfterSingleExpression);
+  CHECK_PARSE("BreakBeforeConstraintExpression: Before",
+              BreakBeforeConstraintExpression, FormatStyle::CEBS_Before);
+  CHECK_PARSE("BreakBeforeConstraintExpression: BeforeSingleExpression",
+              BreakBeforeConstraintExpression, FormatStyle::CEBS_BeforeSingleExpression);
+  CHECK_PARSE("BreakBeforeConstraintExpression: After",
+              BreakBeforeConstraintExpression, FormatStyle::CEBS_After);
+
+  Style.BraceWrappingRequiresExpression = FormatStyle::BWARES_NoWrap;
+  CHECK_PARSE("BraceWrappingRequiresExpression: WrapAfter",
+              BraceWrappingRequiresExpression, FormatStyle::BWARES_WrapAfter);
+  CHECK_PARSE("BraceWrappingRequiresExpression: WrapBefore",
+              BraceWrappingRequiresExpression, FormatStyle::BWARES_WrapBefore);
+  CHECK_PARSE("BraceWrappingRequiresExpression: WrapBeforeWithNewline",
+              BraceWrappingRequiresExpression, FormatStyle::BWARES_WrapBeforeWithNewline);
+  CHECK_PARSE("BraceWrappingRequiresExpression: WrapBoth",
+              BraceWrappingRequiresExpression, FormatStyle::BWARES_WrapBoth);
+  CHECK_PARSE("BraceWrappingRequiresExpression: WrapBothWithNewline",
+              BraceWrappingRequiresExpression, FormatStyle::BWARES_WrapBothWithNewline);
+  CHECK_PARSE("BraceWrappingRequiresExpression: NoWrap",
+              BraceWrappingRequiresExpression, FormatStyle::BWARES_NoWrap);
 
   // FIXME: This is required because parsing a configuration simply overwrites
   // the first N elements of the list instead of resetting it.

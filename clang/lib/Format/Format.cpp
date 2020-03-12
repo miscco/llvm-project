@@ -189,6 +189,26 @@ template <> struct ScalarEnumerationTraits<FormatStyle::BraceBreakingStyle> {
   }
 };
 
+template <> struct ScalarEnumerationTraits<FormatStyle::ConstraintExpressionBreakingStyle> {
+  static void enumeration(IO &IO, FormatStyle::ConstraintExpressionBreakingStyle &Value) {
+    IO.enumCase(Value, "After", FormatStyle::CEBS_After);
+    IO.enumCase(Value, "AfterSingleExpression", FormatStyle::CEBS_AfterSingleExpression);
+    IO.enumCase(Value, "Before", FormatStyle::CEBS_Before);
+    IO.enumCase(Value, "BeforeSingleExpression", FormatStyle::CEBS_BeforeSingleExpression);
+  }
+};
+
+template <> struct ScalarEnumerationTraits<FormatStyle::BraceWrappingRequiresExpressionStyle> {
+  static void enumeration(IO &IO, FormatStyle::BraceWrappingRequiresExpressionStyle &Value) {
+    IO.enumCase(Value, "NoWrap", FormatStyle::BWARES_NoWrap);
+    IO.enumCase(Value, "WrapAfter", FormatStyle::BWARES_WrapAfter);
+    IO.enumCase(Value, "WrapBefore", FormatStyle::BWARES_WrapBefore);
+    IO.enumCase(Value, "WrapBeforeWithNewline", FormatStyle::BWARES_WrapBeforeWithNewline);
+    IO.enumCase(Value, "WrapBoth", FormatStyle::BWARES_WrapBoth);
+    IO.enumCase(Value, "WrapBothWithNewline", FormatStyle::BWARES_WrapBothWithNewline);
+  }
+};
+
 template <>
 struct ScalarEnumerationTraits<
     FormatStyle::BraceWrappingAfterControlStatementStyle> {
@@ -271,6 +291,16 @@ struct ScalarEnumerationTraits<FormatStyle::DefinitionReturnTypeBreakingStyle> {
     // For backward compatibility.
     IO.enumCase(Value, "false", FormatStyle::DRTBS_None);
     IO.enumCase(Value, "true", FormatStyle::DRTBS_All);
+  }
+};
+
+template <>
+struct ScalarEnumerationTraits<FormatStyle::ShortRequiresClauseStyle> {
+  static void enumeration(IO &IO, FormatStyle::ShortRequiresClauseStyle &Value) {
+    IO.enumCase(Value, "Never", FormatStyle::SRCS_Never);
+    IO.enumCase(Value, "Single", FormatStyle::SRCS_Single);
+    IO.enumCase(Value, "Short", FormatStyle::SRCS_Short);
+    IO.enumCase(Value, "Always", FormatStyle::SRCS_Always);
   }
 };
 
@@ -428,6 +458,10 @@ template <> struct MappingTraits<FormatStyle> {
                    Style.AllowShortIfStatementsOnASingleLine);
     IO.mapOptional("AllowShortLoopsOnASingleLine",
                    Style.AllowShortLoopsOnASingleLine);
+    IO.mapOptional("AllowShortRequiresClause",
+                   Style.AllowShortRequiresClause);
+    IO.mapOptional("AllowShortRequiresExpression",
+                   Style.AllowShortRequiresExpression);
     IO.mapOptional("AlwaysBreakAfterDefinitionReturnType",
                    Style.AlwaysBreakAfterDefinitionReturnType);
     IO.mapOptional("AlwaysBreakAfterReturnType",
@@ -456,6 +490,10 @@ template <> struct MappingTraits<FormatStyle> {
     IO.mapOptional("BreakBeforeBinaryOperators",
                    Style.BreakBeforeBinaryOperators);
     IO.mapOptional("BreakBeforeBraces", Style.BreakBeforeBraces);
+    IO.mapOptional("BreakBeforeConstraintExpression",
+                   Style.BreakBeforeConstraintExpression);
+    IO.mapOptional("BraceWrappingRequiresExpression",
+                   Style.BraceWrappingRequiresExpression);
 
     bool BreakBeforeInheritanceComma = false;
     IO.mapOptional("BreakBeforeInheritanceComma", BreakBeforeInheritanceComma);
@@ -778,6 +816,8 @@ FormatStyle getLLVMStyle(FormatStyle::LanguageKind Language) {
   LLVMStyle.AllowShortIfStatementsOnASingleLine = FormatStyle::SIS_Never;
   LLVMStyle.AllowShortLambdasOnASingleLine = FormatStyle::SLS_All;
   LLVMStyle.AllowShortLoopsOnASingleLine = false;
+  LLVMStyle.AllowShortRequiresClause = FormatStyle::SRCS_Short;
+  LLVMStyle.AllowShortRequiresExpression = true;
   LLVMStyle.AlwaysBreakAfterReturnType = FormatStyle::RTBS_None;
   LLVMStyle.AlwaysBreakAfterDefinitionReturnType = FormatStyle::DRTBS_None;
   LLVMStyle.AlwaysBreakBeforeMultilineStrings = false;
@@ -787,6 +827,8 @@ FormatStyle getLLVMStyle(FormatStyle::LanguageKind Language) {
   LLVMStyle.BreakBeforeBinaryOperators = FormatStyle::BOS_None;
   LLVMStyle.BreakBeforeTernaryOperators = true;
   LLVMStyle.BreakBeforeBraces = FormatStyle::BS_Attach;
+  LLVMStyle.BreakBeforeConstraintExpression = FormatStyle::CEBS_Before;
+  LLVMStyle.BraceWrappingRequiresExpression = FormatStyle::BWARES_WrapBothWithNewline;
   LLVMStyle.BraceWrapping = {false, false, FormatStyle::BWACS_Never,
                              false, false, false,
                              false, false, false,
@@ -898,6 +940,10 @@ FormatStyle getGoogleStyle(FormatStyle::LanguageKind Language) {
   GoogleStyle.AllowShortIfStatementsOnASingleLine =
       FormatStyle::SIS_WithoutElse;
   GoogleStyle.AllowShortLoopsOnASingleLine = true;
+  GoogleStyle.AllowShortRequiresClause = FormatStyle::SRCS_Never;
+  GoogleStyle.AllowShortRequiresExpression = true;
+  GoogleStyle.BreakBeforeConstraintExpression = FormatStyle::CEBS_Before;
+  GoogleStyle.BraceWrappingRequiresExpression = FormatStyle::BWARES_WrapBothWithNewline;
   GoogleStyle.AlwaysBreakBeforeMultilineStrings = true;
   GoogleStyle.AlwaysBreakTemplateDeclarations = FormatStyle::BTDS_Yes;
   GoogleStyle.ConstructorInitializerAllOnOneLineOrOnePerLine = true;
@@ -1066,6 +1112,10 @@ FormatStyle getChromiumStyle(FormatStyle::LanguageKind Language) {
     ChromiumStyle.AllowAllParametersOfDeclarationOnNextLine = false;
     ChromiumStyle.AllowShortFunctionsOnASingleLine = FormatStyle::SFS_Inline;
     ChromiumStyle.AllowShortIfStatementsOnASingleLine = FormatStyle::SIS_Never;
+    ChromiumStyle.AllowShortRequiresClause = FormatStyle::SRCS_Never;
+    ChromiumStyle.AllowShortRequiresExpression = true;
+    ChromiumStyle.BreakBeforeConstraintExpression = FormatStyle::CEBS_Before;
+    ChromiumStyle.BraceWrappingRequiresExpression = FormatStyle::BWARES_WrapBothWithNewline;
     ChromiumStyle.AllowShortLoopsOnASingleLine = false;
     ChromiumStyle.BinPackParameters = false;
     ChromiumStyle.DerivePointerAlignment = false;
@@ -1086,6 +1136,8 @@ FormatStyle getMozillaStyle() {
   MozillaStyle.BinPackParameters = false;
   MozillaStyle.BinPackArguments = false;
   MozillaStyle.BreakBeforeBraces = FormatStyle::BS_Mozilla;
+  MozillaStyle.BreakBeforeConstraintExpression = FormatStyle::CEBS_Before;
+  MozillaStyle.BraceWrappingRequiresExpression = FormatStyle::BWARES_WrapBothWithNewline;
   MozillaStyle.BreakConstructorInitializers = FormatStyle::BCIS_BeforeComma;
   MozillaStyle.BreakInheritanceList = FormatStyle::BILS_BeforeComma;
   MozillaStyle.ConstructorInitializerIndentWidth = 2;
@@ -1110,6 +1162,8 @@ FormatStyle getWebKitStyle() {
   Style.AllowShortBlocksOnASingleLine = FormatStyle::SBS_Empty;
   Style.BreakBeforeBinaryOperators = FormatStyle::BOS_All;
   Style.BreakBeforeBraces = FormatStyle::BS_WebKit;
+  Style.BreakBeforeConstraintExpression = FormatStyle::CEBS_Before;
+  Style.BraceWrappingRequiresExpression = FormatStyle::BWARES_WrapBothWithNewline;
   Style.BreakConstructorInitializers = FormatStyle::BCIS_BeforeComma;
   Style.Cpp11BracedListStyle = false;
   Style.ColumnLimit = 0;
@@ -1130,6 +1184,8 @@ FormatStyle getGNUStyle() {
   Style.AlwaysBreakAfterReturnType = FormatStyle::RTBS_AllDefinitions;
   Style.BreakBeforeBinaryOperators = FormatStyle::BOS_All;
   Style.BreakBeforeBraces = FormatStyle::BS_GNU;
+  Style.BreakBeforeConstraintExpression = FormatStyle::CEBS_Before;
+  Style.BraceWrappingRequiresExpression = FormatStyle::BWARES_WrapBothWithNewline;
   Style.BreakBeforeTernaryOperators = true;
   Style.Cpp11BracedListStyle = false;
   Style.ColumnLimit = 79;
@@ -1146,6 +1202,8 @@ FormatStyle getMicrosoftStyle(FormatStyle::LanguageKind Language) {
   Style.IndentWidth = 4;
   Style.UseTab = FormatStyle::UT_Never;
   Style.BreakBeforeBraces = FormatStyle::BS_Custom;
+  Style.BreakBeforeConstraintExpression = FormatStyle::CEBS_Before;
+  Style.BraceWrappingRequiresExpression = FormatStyle::BWARES_WrapBothWithNewline;
   Style.BraceWrapping.AfterClass = true;
   Style.BraceWrapping.AfterControlStatement = FormatStyle::BWACS_Always;
   Style.BraceWrapping.AfterEnum = true;
@@ -1161,6 +1219,8 @@ FormatStyle getMicrosoftStyle(FormatStyle::LanguageKind Language) {
   Style.AllowShortFunctionsOnASingleLine = FormatStyle::SFS_None;
   Style.AllowShortCaseLabelsOnASingleLine = false;
   Style.AllowShortIfStatementsOnASingleLine = FormatStyle::SIS_Never;
+  Style.AllowShortRequiresClause = FormatStyle::SRCS_Short;
+  Style.AllowShortRequiresExpression = true;
   Style.AllowShortLoopsOnASingleLine = false;
   Style.AlwaysBreakAfterDefinitionReturnType = FormatStyle::DRTBS_None;
   Style.AlwaysBreakAfterReturnType = FormatStyle::RTBS_None;
