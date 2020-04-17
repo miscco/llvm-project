@@ -89,6 +89,12 @@ namespace format {
   TYPE(PureVirtualSpecifier)                                                   \
   TYPE(RangeBasedForLoopColon)                                                 \
   TYPE(RegexLiteral)                                                           \
+  TYPE(RequiresClauseCloser)                                                   \
+  TYPE(RequiresClauseString)                                                   \
+  TYPE(RequiresClauseOpener)                                                   \
+  TYPE(RequiresExpressionCloser)                                               \
+  TYPE(RequiresExpressionString)                                               \
+  TYPE(RequiresExpressionOpener)                                               \
   TYPE(SelectorName)                                                           \
   TYPE(StartOfName)                                                            \
   TYPE(StatementMacro)                                                         \
@@ -406,6 +412,8 @@ struct FormatToken {
   bool opensScope() const {
     if (is(TT_TemplateString) && TokenText.endswith("${"))
       return true;
+    if (is(TT_RequiresExpressionOpener) && TokenText.endswith("${"))
+      return true;
     if (is(TT_DictLiteral) && is(tok::less))
       return true;
     return isOneOf(tok::l_paren, tok::l_brace, tok::l_square,
@@ -415,6 +423,8 @@ struct FormatToken {
   /// protos.
   bool closesScope() const {
     if (is(TT_TemplateString) && TokenText.startswith("}"))
+      return true;
+    if (is(TT_RequiresExpressionString) && TokenText.startswith("}"))
       return true;
     if (is(TT_DictLiteral) && is(tok::greater))
       return true;

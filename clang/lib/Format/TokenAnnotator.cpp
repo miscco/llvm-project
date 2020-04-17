@@ -721,6 +721,50 @@ private:
     return true;
   }
 
+  bool parseRequires() {
+    if (!CurrentToken) {
+      return true;
+    }
+    FormatToken *Previous = CurrentToken->getPreviousNonComment();
+    if (Previous && Previous->Type == TT_TemplateCloser) {
+      return parseConstraintExpression();
+    } else {
+      return parseRequiresExpression();
+    }
+    return true;
+  }
+
+  bool parseConstraintExpression() {
+    if (!CurrentToken) {
+      return true;
+    }
+
+    while (CurrentToken) {
+      /// Outside of requires expressions every colon is the end of the
+      /// constraint expression
+      if (CurrentToken->is(tok::colon)) {
+        return true;
+      }
+
+      /// Requires expressions are special so parse them first
+      if (CurrentToken->is(tok::kw_requires)) {
+        if (!parseRequiresExpression()) {
+          return false;
+        }
+      }
+
+      /// Anything that is not a brace o
+    }
+    return true;
+  }
+
+  bool parseRequiresExpression() {
+    if (!CurrentToken) {
+      return true;
+    }
+    return true;
+  }
+
   void updateParameterCount(FormatToken *Left, FormatToken *Current) {
     // For ObjC methods, the number of parameters is calculated differently as
     // method declarations have a different structure (the parameters are not
@@ -1052,6 +1096,16 @@ private:
         Tok->setType(TT_CSharpGenericTypeConstraint);
         parseCSharpGenericTypeConstraint();
       }
+      break;
+    case tok::kw_concept:
+      assert(CurrentToken->Tok.getKind() == tok::identifier);
+      next();
+      assert(CurrentToken->Tok.getKind() == tok::equal);
+      next();
+      parseConstraintExpression();
+      break;
+    case tok::kw_requires:
+      parseRequires();
       break;
     default:
       break;
